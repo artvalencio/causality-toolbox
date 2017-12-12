@@ -12,7 +12,7 @@ Details of each program and usage example is available by typing in the command 
 
 
 (C) Arthur Valencio* and Dr Murilo S. Baptista
-    ICSMB, University of Aberdeen
-    * Thanks to CNPq scholarship, Brazil
+ICSMB, University of Aberdeen
+* Thanks to CNPq scholarship, Brazil
 
 This package is available free without any warrantee. Use it at your own risk.
