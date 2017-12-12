@@ -8,4 +8,12 @@ This version is written in Matlab/Octave.
 
 * totals.m: calculates, for multivariate systems, the Total Correlation (generalization of Mutual Information) and the Joint Entropy of the entire system
 
+Details of each program and usage example is available by typing in the command window: help [function-name]
 
+
+----------------------------------------------
+(C) Arthur Valencio* and Dr Murilo S. Baptista
+    ICSMB, University of Aberdeen
+    * Thanks to CNPq scholarship, Brazil
+-----------------------------------------------
+This package is available free without any warrantee. Use it at your own risk.
