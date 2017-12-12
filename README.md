@@ -16,6 +16,5 @@ Details of each program and usage example is available by typing in the command 
 ICSMB, University of Aberdeen
 
 (AV thanks a CNPq scholarship, Brazil)
------------------ 
 
 This package is available free without any warrantee. Use it at your own risk.
