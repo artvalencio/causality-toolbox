@@ -1,5 +1,6 @@
-# symbolic-toolbox
-Toolbox of information theory measures calculated using the symbolic dynamics from a time-series. 
+# causality-toolbox
+Functions for calculating information theory measures from time-series, with the purpose of distinguishing causes and effects of a physical process.
+
 This version is written in Matlab/Octave.
 
 * cami.m: calculates, for bivariate systems, the Causal Mutual Information (CaMI) in both directions, the Mutual Information, the Transfer Entropy in both directions and the Directionality Index
@@ -11,10 +12,25 @@ This version is written in Matlab/Octave.
 Details of each program and usage example is available by typing in the command window: help [function-name]
 
 -----------------
-(C) Arthur Valencio and Dr Murilo S. Baptista
+(C) Arthur Valencio* and Dr Murilo S. Baptista
 
 ICSMB, University of Aberdeen
 
-(AV thanks a CNPq scholarship, Brazil)
+* Support: CNPq (Brazil)
 
-This package is available free without any warranty. Use it at your own risk.
+This package is available as is, without any warranty. Use it at your own risk.
+
+-------------------
+If useful, please cite:
+
+Arthur Valencio and Murilo S. Baptista. Causality Toolbox: functions for calculating information theory measures from time-series. Open source codes for Matlab. 2018.  
+
+
+* Bibtex entry:
+
+@misc{cami,
+author={Valencio, Arthur and Baptista, Murilo da Silva},
+title={Causality Toolbox: functions for calculating information theory measures from time-series},
+note={Open source codes for Matlab. Available at \url{https://github.com/artvalencio/causality-toolbox/}.},
+year={2018}
+}
