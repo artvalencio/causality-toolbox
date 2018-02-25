@@ -1,4 +1,4 @@
-function [cami_xy,cami_yx,mi,diridx,te_xy,te_yx] = cami(x,y,lx,ly,xlinepos,ylinepos,tau)
+function [cami_xy,cami_yx,mi,diridx,te_xy,te_yx] = cami(x,y,lx,ly,xlinepos,ylinepos,tau,print)
 % CAMI Calculates the Causal Mutual Information (CaMI) for a bivariate time-series
 % See Bianco-Martinez, E. and Baptista, M.S. ('Space-time nature of causality', arXiv:1612.05023) 
 % for theoretical details
@@ -31,6 +31,8 @@ function [cami_xy,cami_yx,mi,diridx,te_xy,te_yx] = cami(x,y,lx,ly,xlinepos,yline
 %                  maximal of mutual information or maximal of CaMI. This 
 %                  strategy seeks to create a time-Poincare mapping that will 
 %                  behave as a Markov system by the partition chosen (lx,ly). 
+%           print: '1' or 'true' for creating a file containing intermediate 
+%                  calculations and summary of results, '0' or 'false' otherwise.
 %
 %--------------------------------------------------------
 % Outputs:
@@ -70,7 +72,7 @@ function [cami_xy,cami_yx,mi,diridx,te_xy,te_yx] = cami(x,y,lx,ly,xlinepos,yline
 %--------------------------------------------------------
 % (C) Arthur Valencio* and Dr Murilo S. Baptista, 20 Sep 2017
 %     ICSMB, University of Aberdeen
-%     *Thanks to CNPq scholarship, Brazil
+%     *Support: CNPq (Brazil)
 
 %check consistency
     if length(x)~=length(y)
@@ -116,7 +118,7 @@ function [cami_xy,cami_yx,mi,diridx,te_xy,te_yx] = cami(x,y,lx,ly,xlinepos,yline
     mi=0;
     for i=1:ns^lx
         for j=1:ns^lx
-            if (p_xp(i)*p_yp(j)>0)&&(p_xyp(i,j)>0)
+            if (p_xp(i)*p_yp(j)>1e-14)&&(p_xyp(i,j)>1e-14)
                 mi=mi+p_xyp(i,j)*log(p_xyp(i,j)/(p_xp(i)*p_yp(j)));
             end
         end
@@ -127,7 +129,7 @@ function [cami_xy,cami_yx,mi,diridx,te_xy,te_yx] = cami(x,y,lx,ly,xlinepos,yline
     for i=1:ns^lx
         for j=1:ns^lx
             for k=1:1:ns^(ly-lx)
-                if (p_xp(i)*p_ypf(j,k)>0) && (p_xypf(i,j,k)>0)
+                if (p_xp(i)*p_ypf(j,k)>1e-14) && (p_xypf(i,j,k)>1e-14)
                     cami_xy=cami_xy+p_xypf(i,j,k)*log(p_xypf(i,j,k)/(p_xp(i)*p_ypf(j,k)));
                 end
             end
@@ -140,7 +142,7 @@ function [cami_xy,cami_yx,mi,diridx,te_xy,te_yx] = cami(x,y,lx,ly,xlinepos,yline
     for i=1:ns^lx
         for j=1:ns^lx
             for k=1:1:ns^(ly-lx)
-                if (ip_x(i)*ip_ypf(j,k)>0)&&(ip_xypf(i,j,k)>0)
+                if (ip_x(i)*ip_ypf(j,k)>1e-14)&&(ip_xypf(i,j,k)>1e-14)
                     cami_yx=cami_yx+ip_xypf(i,j,k)*log(ip_xypf(i,j,k)/(ip_x(i)*ip_ypf(j,k)));
                 end
             end
@@ -152,9 +154,57 @@ function [cami_xy,cami_yx,mi,diridx,te_xy,te_yx] = cami(x,y,lx,ly,xlinepos,yline
     te_xy=cami_xy-mi;
     te_yx=cami_yx-mi;
     
+    %print calculations to file
+    if print
+        timeseries=table;
+        timeseries.x=x;
+        timeseries.y=y;
+        timeseries.Sx=Sx';
+        timeseries.Sy=Sy';
+        timeseries.phi_x=phi_x';
+        timeseries.phi_yp=phi_yp';
+        timeseries.phi_yf=phi_yf';
+        timeseries.inv_phi_y=iphi_x';
+        timeseries.inv_phi_xp=iphi_yp';
+        timeseries.inv_phi_xf=iphi_yf';
+        writetable(timeseries);
+        dlmwrite('output.txt','CaMI calculation','delimiter','');
+        dlmwrite('output.txt','-----------------------------------','delimiter','','-append');
+        dlmwrite('output.txt','Selected parameters by the user:','delimiter','','-append');
+        dlmwrite('output.txt',strcat('- Number of symbols (ns): ',num2str(ns)),'delimiter','','-append');
+        dlmwrite('output.txt',strcat('- Length of symbolic sequence in x (lx): ',num2str(lx)),'delimiter','','-append');
+        dlmwrite('output.txt',strcat('- Length of symbolic sequence in y (ly): ',num2str(ly)),'delimiter','','-append');
+        dlmwrite('output.txt','- Position of partition delimiter lines:','-append','delimiter','');
+        dlmwrite('output.txt','* in x: ','-append','delimiter','');
+        dlmwrite('output.txt',xlinepos,'delimiter','\t','precision',5,'-append')
+        dlmwrite('output.txt','* in y: ','-append','delimiter','');
+        dlmwrite('output.txt',ylinepos,'delimiter','\t','precision',5,'-append')
+        dlmwrite('output.txt','-----------------------------------','delimiter','','-append');
+        dlmwrite('output.txt','Output:','delimiter','','-append');
+        dlmwrite('output.txt',strcat('- CaMI X->Y: ',num2str(cami_xy)),'delimiter','','-append');
+        dlmwrite('output.txt',strcat('- CaMI Y->X: ',num2str(cami_yx)),'delimiter','','-append');
+        dlmwrite('output.txt',strcat('- Directionality Index (CaMI_{X->Y} - CaMI_{Y->X}): ',num2str(diridx)),'delimiter','','-append');
+        dlmwrite('output.txt',strcat('- Mutual Information of X and Y: ',num2str(mi)),'delimiter','','-append');
+        dlmwrite('output.txt',strcat('- Transfer Entropy X->Y: ',num2str(te_xy)),'delimiter','','-append');
+        dlmwrite('output.txt',strcat('- Transfer Entropy Y->X: ',num2str(te_yx)),'delimiter','','-append');
+        dlmwrite('output.txt','-----------------------------------','delimiter','','-append');
+        dlmwrite('output.txt','**Probability boxes and timeseries can be seen in calculations.mat**','delimiter','','-append');
+        dlmwrite('output.txt','**Timeseries and box assignment can also be seen in timeseries.txt**','delimiter','','-append');
+        dlmwrite('output.txt','-----------------------------------','delimiter','','-append');
+        dlmwrite('output.txt','(C) Arthur Valencio* and Murilo S. Baptista, 2017','delimiter','','-append');
+        dlmwrite('output.txt','ICSMB, University of Aberdeen','delimiter','','-append');
+        dlmwrite('output.txt','*Thanks to CNPq scholarship, Brazil','delimiter','','-append');
+        initialparameters=table;
+        initialparameters.resolution=ns;
+        initialparameters.symbol_x_length=lx;
+        initialparameters.symbol_y_length=ly;
+        save('calculations.mat','timeseries','initialparameters','cami_xy',...
+            'cami_yx','diridx','mi','te_xy','te_yx','p_xp','p_yp','p_yf','p_ypf',...
+            'p_xyp','p_xypf','ip_x','ip_yp','ip_yf','ip_ypf','ip_xyp','ip_xypf')
+    end
 end
 
-%%
+
 function [p_xp,p_yp,p_yf,p_ypf,p_xyp,p_xypf,phi_x,phi_yp,phi_yf]=getprobabilities(Sx,Sy,lx,ly,ns,tau,len)
 % calculates the values of phi and probabilities used for CaMI and mutual information
 
@@ -222,3 +272,4 @@ function [p_xp,p_yp,p_yf,p_ypf,p_xyp,p_xypf,phi_x,phi_yp,phi_yf]=getprobabilitie
     p_xyp=p_xyp/sum(sum(p_xyp));
     p_xypf=p_xypf/sum(sum(sum(p_xypf)));
 end
+
