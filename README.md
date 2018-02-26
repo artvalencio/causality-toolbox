@@ -1,5 +1,5 @@
 # causality-toolbox
-Functions for calculating information theory measures from time-series, with the purpose of distinguishing causes and effects of a physical process.
+Functions for calculating information theory measures from time-series, with the purpose of distinguishing the cause and the effect variables on a physical process.
 
 This version is written in Matlab/Octave.
 
