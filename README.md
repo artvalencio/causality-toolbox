@@ -7,6 +7,8 @@ This version is written in Matlab/Octave.
 
 * camir.m: calculates, for bivariate sytems, the Causal Mutual Information Rate (CaMIR) in both directions, the Mutual Information Rate and the Transfer Entropy Rate in both directions
 
+* mir.m: calculates only the Mutual Information Rate, however the user can choose different proportions of length of symbolic sequence (Ly/Lx). 
+
 * totals.m: calculates, for multivariate systems, the Total Correlation (generalization of Mutual Information) and the Joint Entropy of the entire system
 
 Details of each program and usage example is available by typing in the command window: help [function-name]
