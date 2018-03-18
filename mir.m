@@ -23,22 +23,15 @@ function [mirval]=mir(x,y,xpartition,ypartition,tau)
 %       at: https://github.com/artvalencio/causality-toolbox
 
 
-list={'Ly = Lx','Ly = 2 Lx','Ly = 3 Lx', 'Ly = 4 Lx'};
-[indx,tf] = listdlg('PromptString',{'Select an option for','symbolic sequence length L'},...
-    'SelectionMode','single','ListString',list);
-
-if tf
-    for L=1:7
-        lx=L;
-        ly=indx*L;
-        mival(L)=mi(x,y,xpartition,ypartition,lx,ly,tau);
+    for L=1:10
+        mival(L)=mi(x,y,xpartition,ypartition,L,tau);
     end
     figure
     plot(1:7,mival)
     xlabel('L')
     ylabel('Mutual Information')
     title('Find the linear part:')
-    list2={'L=1','L=2','L=3','L=4','L=5','L=6','L=7'};
+    list2={'L=1','L=2','L=3','L=4','L=5','L=6','L=7','L=8','L=9','L=10'};
     lstart = listdlg('PromptString',{'Select starting L','(linear part begins):'},...
         'SelectionMode','single','ListString',list2);
     lend = listdlg('PromptString',{'Select finishing L', '(linear part ends):'},...
@@ -50,10 +43,7 @@ if tf
     
 end
 
-
-end
-
-function [mival]=mi(x,y,xpartition,ypartition,lx,ly,tau)
+function [mival]=mi(x,y,xpartition,ypartition,L,tau)
 %calculates the mutual information
 
     if length(x)~=length(y)
@@ -90,12 +80,12 @@ function [mival]=mi(x,y,xpartition,ypartition,lx,ly,tau)
         end
     end
     
-    [p_x,p_y,p_xy]=getprobabilities(Sx,Sy,lx,ly,ns,tau,length(x));
+    [p_x,p_y,p_xy]=getprobabilities(Sx,Sy,L,ns,tau,length(x));
     
     %Calculating mutual information
     mival=0;
-    for i=1:ns^lx
-        for j=1:ns^lx
+    for i=1:ns^L
+        for j=1:ns^L
             if (p_x(i)*p_y(j)>1e-14)&&(p_xy(i,j)>1e-14)
                 mival=mival+p_xy(i,j)*(log(p_xy(i,j)/(p_x(i)*p_y(j))))/log(2);
             end
@@ -104,25 +94,22 @@ function [mival]=mi(x,y,xpartition,ypartition,lx,ly,tau)
 
 end
 
-function [p_xp,p_yp,p_xyp]=getprobabilities(Sx,Sy,lx,ly,ns,tau,len)
+function [p_xp,p_yp,p_xyp]=getprobabilities(Sx,Sy,L,ns,tau,len)
 % calculates the symbolic sequences and probabilities
 
-    %initializing phi: removing points out-of-reach (start-end)
-    phi_x(1:tau*lx)=NaN;
-    phi_yp(1:tau*lx)=NaN;
-    phi_x(len-tau*(ly-lx):len)=NaN;
-    phi_yp(len-tau*(ly-lx):len)=NaN;
+    %initializing phi: removing points out-of-reach (start)
+    phi_x(1:tau*L)=NaN;
+    phi_yp(1:tau*L)=NaN;
     
     %initializing probabilities of boxes
-    %nopoints=len-tau*ly-1;
-    p_xp(1:ns^lx+1)=0;
-    p_yp(1:ns^lx+1)=0;
-    p_xyp(1:ns^lx+1,1:ns^lx+1)=0;
+    p_xp(1:ns^L+1)=0;
+    p_yp(1:ns^L+1)=0;
+    p_xyp(1:ns^L+1,1:ns^L+1)=0;
     %calculating phi_x, about the past of x
-    for n=tau*lx+1:len-tau*(ly-lx)
+    for n=tau*L+1:len
         phi_x(n)=0;
-        k=n-lx;%running index for sum over tau-spaced elements
-        for i=n-tau*lx:tau:n-tau
+        k=n-L;%running index for sum over tau-spaced elements
+        for i=n-tau*L:tau:n-tau
             phi_x(n)=phi_x(n)+Sx(k)*ns^((n-1)-k);
             k=k+1;
         end
@@ -130,10 +117,10 @@ function [p_xp,p_yp,p_xyp]=getprobabilities(Sx,Sy,lx,ly,ns,tau,len)
     end
     p_xp=p_xp/sum(p_xp);
     %calculating phi_yp, about the past of y
-    for n=tau*lx+1:len-tau*(ly-lx)
+    for n=tau*L+1:len
         phi_yp(n)=0;
-        k=n-lx;
-        for i=n-tau*lx:tau:n-tau
+        k=n-L;
+        for i=n-tau*L:tau:n-tau
             phi_yp(n)=phi_yp(n)+Sy(k)*ns^((n-1)-k);
             k=k+1;
         end
@@ -141,7 +128,7 @@ function [p_xp,p_yp,p_xyp]=getprobabilities(Sx,Sy,lx,ly,ns,tau,len)
     end
     p_yp=p_yp/sum(p_yp);
     %calculating joint probabilities
-    for n=tau*lx+1:len-tau*(ly-lx)
+    for n=tau*L+1:len
         p_xyp(phi_x(n)+1,phi_yp(n)+1)=p_xyp(phi_x(n)+1,phi_yp(n)+1)+1;
     end
     p_xyp=p_xyp/sum(sum(p_xyp));
