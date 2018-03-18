@@ -13,7 +13,7 @@ function [mirval]=mir(x,y,xpartition,ypartition,tau)
 %       For a binary initial partition of a map with time-series given by
 %       x and y
 %----------------------------------------------
-%(C) Arthur Valencio* and Dr Murilo S. Baptista, 15 Mar 2018
+%(C) Arthur Valencio* and Dr Murilo S. Baptista, 18 Mar 2018
 %    ICSMB University of Aberdeen
 %    * Support: CNPq, Brazil
 %----------------------------------------------
